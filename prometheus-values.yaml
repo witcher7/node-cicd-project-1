@@ -1,0 +1,21 @@
+USER-SUPPLIED VALUES:
+alertmanager:
+  persistentVolume:
+    enabled: false
+server:
+  persistentVolume:
+    enabled: false
+  extraScrapeConfigs:
+    - job_name: 'node-prom-app'
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:   # <-- FIXED (was namespace)
+            names:
+              - node-app
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_label_app_kubernetes_io_name]   # <-- FIXED (correct label key)
+          action: keep
+          regex: node-prom-app
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: http

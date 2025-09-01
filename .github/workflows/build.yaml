@@ -1,0 +1,60 @@
+name: Nodejs CI/CD pipeline
+on:
+     push:
+      branches: ["main"]
+     pull_request:
+       branches: ["main"]
+
+jobs: 
+   build:
+     runs-on: ubuntu-latest
+     steps:
+         - name: Checkout Code
+           uses: actions/checkout@v4
+        
+         - name: Setup Nodejs
+           uses: actions/setup-node@v3
+           with:
+             node-version: 18
+
+         - name: Install dependencies
+           run: npm Install
+
+         - name: Run Tests
+           run: npm test
+
+         - name: SonarQube Token
+           uses: sonarsource/sonarqube-scan-action@v3
+           with:
+            args: >
+              -Dsonar.projectKey=node-prom-app
+              -Dsonar.sources=.
+           env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+         
+         - name: Build Docker image
+           run: docker build -t ${{ secrets.DOCKER_USERNAME }}/first-class-project:${{ github.sha }} .
+
+         - name: Push Docker image
+           run: docker push ${{ secrets.DOCKER_USERNAME }}/first-class-project:${{ github.sha }}
+
+         - name: Trivy
+           uses: aquasecurity/trivy-action@0.28.0
+           with:
+             image-ref: ${{ secrets.DOCKER_USERNAME }}/node-prom-app:${{ github.sha }}
+             format: 'table'
+             severity: 'CRITICAL,HIGH'
+
+         - name: Configure AWS credentials
+           uses: aws-actions/configure-aws-credentials@v4
+           with:
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              aws-region: us-east-1
+   
+         - name: Update kubeconfig for EKS
+           run: aws eks update-kubeconfig --region us-east-1 --name 
+      
+         - name: Test Kubernetes Access
+           run: kubectl get nodes
