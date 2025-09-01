@@ -49,7 +49,7 @@ jobs:
            run: docker push ${{ secrets.DOCKER_USERNAME }}/first-class-project:${{ github.sha }}
  
 
-# hello
+# hel
          - name: Configure AWS credentials
            uses: aws-actions/configure-aws-credentials@v4
            with:
