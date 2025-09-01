@@ -19,10 +19,12 @@ jobs:
 
          - name: Install dependencies
            run: npm install
+           working-directory: ./app/
 
          - name: Run Tests
            run: npm test
-
+           working-directory: ./app/
+           
          - name: SonarQube Token
            uses: sonarsource/sonarqube-scan-action@v3
            with:
