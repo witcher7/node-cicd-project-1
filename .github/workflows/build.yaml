@@ -28,8 +28,8 @@ jobs:
               -Dsonar.projectKey=node-prom-app
               -Dsonar.sources=.
            env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+            SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
          
          - name: Build Docker image
            run: docker build -t ${{ secrets.DOCKER_USERNAME }}/first-class-project:${{ github.sha }} .
