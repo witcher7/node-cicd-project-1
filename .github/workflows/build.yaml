@@ -60,5 +60,9 @@ jobs:
          - name: Update kubeconfig for EKS
            run: aws eks update-kubeconfig --region us-east-1 --name nodejs-cluster
       
-         - name: Test Kubernetes Access
-           run: kubectl get nodes
+         - name: Helm Upgrade
+           run: |   
+             helm upgrade --install node-prom-app ./helm/node-prom-app \
+              --namespace node-app \
+              --set image.repository=${{ secrets.DOCKER_USERNAME }}/first-class-project \
+              --set image.tag=${{ github.sha }}
